@@ -1,8 +1,9 @@
 var list = document.getElementById('list');
-var btn = document.getElementById('submit');
+var supportButton = document.getElementById('support');
+var convertButton = document.getElementById('convert');
 
 var travelWantedly = function(urls) {
-  chrome.windows.create({ }, function(win) {
+  chrome.windows.create({ active: false }, function(win) {
     var winId = win.id;
     var tabIds = [];
     chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
@@ -11,7 +12,7 @@ var travelWantedly = function(urls) {
         chrome.tabs.sendMessage(tabId, {text: ''}, function(response) {
           setTimeout(function() {
             chrome.tabs.remove(tabId);
-          }, 5000);
+          }, 8000);
         });
       }
     });
@@ -23,10 +24,18 @@ var travelWantedly = function(urls) {
   });
 };
 
-btn.addEventListener('click', function(e) {
+var textToUrls = function(text) {
+  return text.match(/https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+/g);
+};
+
+supportButton.addEventListener('click', function(e) {
   e.preventDefault();
   var rawText = list.value;
-  var urlList = rawText.match(/https?:\/\/[\w/:%#\$&\?\(\)~\.=\+\-]+/g);
 
-  travelWantedly(urlList);
+  travelWantedly(textToUrls(rawText));
+});
+convertButton.addEventListener('click', function(e) {
+  e.preventDefault();
+  var rawText = list.value;
+  list.value = 'open \\\n' + textToUrls(rawText).join(' \\\n');
 });
